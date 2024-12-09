@@ -13,7 +13,7 @@
 
 1. プロジェクトのクローン
 ```bash
-git clone <repository-url>
+git clone git@github.com:sakurakotubaki/stepper-example.git
 cd stepper-example
 ```
 
