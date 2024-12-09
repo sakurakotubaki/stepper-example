@@ -1,36 +1,135 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js Stepper Example with Redux Toolkit
 
-## Getting Started
+このプロジェクトは、Next.js、Redux Toolkit、TailwindCSSを使用したステッパー（進行状況表示）機能を持つ診察予約システムのデモアプリケーションです。
 
-First, run the development server:
+## 技術スタック
 
+- Next.js 14
+- Bun
+- Redux Toolkit
+- TailwindCSS
+
+## 環境構築
+
+1. プロジェクトのクローン
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
+git clone <repository-url>
+cd stepper-example
+```
+
+2. 依存関係のインストール
+```bash
+bun install
+```
+
+3. 開発サーバーの起動
+```bash
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## プロジェクト構成
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+app/
+├── components/
+│   └── Stepper.tsx        # ステッパーコンポーネント
+├── store/
+│   ├── store.ts           # Reduxストアの設定
+│   └── stepperSlice.ts    # ステッパーのスライス
+├── apply/
+│   └── page.tsx           # 申し込みページ
+├── confirm/
+│   └── page.tsx           # 確認ページ
+├── complete/
+│   └── page.tsx           # 完了ページ
+└── providers.tsx          # Reduxプロバイダー
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Redux Toolkitの使用例
 
-## Learn More
+### 1. ストアの設定 (store.ts)
+```typescript
+import { configureStore } from '@reduxjs/toolkit'
+import stepperReducer from './stepperSlice'
 
-To learn more about Next.js, take a look at the following resources:
+export const store = configureStore({
+  reducer: {
+    stepper: stepperReducer,
+  },
+})
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+export type RootState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 2. スライスの作成 (stepperSlice.ts)
+```typescript
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-## Deploy on Vercel
+interface StepperState {
+  activeStep: number
+  symptoms: {
+    toothache: boolean
+    sensitivity: boolean
+    // ...他の症状
+  }
+}
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+export const stepperSlice = createSlice({
+  name: 'stepper',
+  initialState,
+  reducers: {
+    setActiveStep: (state, action: PayloadAction<number>) => {
+      state.activeStep = action.payload
+    },
+    // ...他のリデューサー
+  },
+})
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 3. コンポーネントでの使用例
+```typescript
+import { useSelector, useDispatch } from 'react-redux'
+import { setActiveStep } from '../store/stepperSlice'
+
+export default function YourComponent() {
+  const dispatch = useDispatch()
+  const activeStep = useSelector((state: RootState) => state.stepper.activeStep)
+
+  const handleNext = () => {
+    dispatch(setActiveStep(activeStep + 1))
+  }
+}
+```
+
+## 主な機能
+
+1. **ステッパー表示**
+   - 現在の進行状況をビジュアル化
+   - ページ遷移に連動して自動更新
+
+2. **フォーム管理**
+   - チェックボックスによる症状選択
+   - Reduxによる状態管理
+
+3. **ページ遷移**
+   - 申し込み → 確認 → 完了の3ステップ
+   - 戻る機能付き
+
+## 学習ポイント
+
+1. **Redux Toolkit**
+   - スライスによる状態管理
+   - TypeScriptとの型連携
+   - アクション・リデューサーの実装
+
+2. **Next.js**
+   - App Routerの使用
+   - クライアントコンポーネント
+   - ページ遷移の実装
+
+3. **TailwindCSS**
+   - モダンなUIデザイン
+   - レスポンシブ対応
+   - コンポーネントスタイリング
+
